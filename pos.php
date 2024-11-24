@@ -1,13 +1,12 @@
 <?php
 session_start();
-// TODO: Add authentication check
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS System - Point of Sale</title>
+    <title>Bakery POS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -15,86 +14,84 @@ session_start();
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-2 d-md-block bg-dark sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="dashboard.php">
-                                <i class="bi bi-speedometer2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active text-white" href="pos.php">
-                                <i class="bi bi-cart"></i> Point of Sale
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="products.php">
-                                <i class="bi bi-box"></i> Products
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="customers.php">
-                                <i class="bi bi-people"></i> Customers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="reports.php">
-                                <i class="bi bi-graph-up"></i> Reports
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="settings.php">
-                                <i class="bi bi-gear"></i> Settings
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
             <!-- Main content -->
-            <main class="col-md-10 ms-sm-auto px-md-4">
-                <div class="row mt-4">
+            <main class="col-md-12 px-md-4">
+                <div class="d-flex justify-content-between align-items-center py-3">
+                    <h4 class="mb-0">Bakery POS</h4>
+                    <a href="dashboard.php" class="btn btn-outline-primary">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </div>
+
+                <div class="row">
                     <!-- Left side - Product selection -->
-                    <div class="col-md-7">
+                    <div class="col-md-8">
                         <div class="card mb-4">
                             <div class="card-header">
-                                <div class="row">
-                                    <div class="col">
+                                <div class="row g-2">
+                                    <div class="col-md-8">
                                         <input type="text" class="form-control" placeholder="Search Products...">
                                     </div>
-                                    <div class="col">
+                                    <div class="col-md-4">
                                         <select class="form-select">
-                                            <option selected>All Categories</option>
-                                            <option>Food</option>
-                                            <option>Beverages</option>
-                                            <option>Others</option>
+                                            <option selected>All Items</option>
+                                            <option>Bread</option>
+                                            <option>Pastries</option>
+                                            <option>Cakes</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="row row-cols-2 row-cols-md-4 g-4">
-                                    <!-- Sample Product Items -->
+                                <div class="row row-cols-2 row-cols-md-4 g-3">
+                                    <!-- Bakery Products -->
                                     <div class="col">
                                         <div class="card h-100 product-card">
-                                            <img src="https://via.placeholder.com/150" class="card-img-top" alt="Product">
-                                            <div class="card-body">
-                                                <h6 class="card-title">Product 1</h6>
-                                                <p class="card-text">$10.00</p>
+                                            <img src="assets/images/bread.jpg" class="card-img-top p-2" alt="White Bread">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title">White Bread</h6>
+                                                <p class="card-text fw-bold">₱50.00</p>
                                                 <button class="btn btn-sm btn-primary w-100">Add</button>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- More product cards would go here -->
+                                    <div class="col">
+                                        <div class="card h-100 product-card">
+                                            <img src="assets/images/croissant.jpg" class="card-img-top p-2" alt="Croissant">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title">Croissant</h6>
+                                                <p class="card-text fw-bold">₱75.00</p>
+                                                <button class="btn btn-sm btn-primary w-100">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="card h-100 product-card">
+                                            <img src="assets/images/chocolate-cake.jpg" class="card-img-top p-2" alt="Chocolate Cake">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title">Chocolate Cake</h6>
+                                                <p class="card-text fw-bold">₱450.00</p>
+                                                <button class="btn btn-sm btn-primary w-100">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="card h-100 product-card">
+                                            <img src="assets/images/donut.jpg" class="card-img-top p-2" alt="Donut">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title">Donut</h6>
+                                                <p class="card-text fw-bold">₱35.00</p>
+                                                <button class="btn btn-sm btn-primary w-100">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Right side - Cart -->
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="mb-0">Current Sale</h5>
@@ -108,22 +105,16 @@ session_start();
                                                 <th>Item</th>
                                                 <th>Qty</th>
                                                 <th>Price</th>
-                                                <th>Total</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>Sample Item</td>
+                                                <td>White Bread</td>
+                                                <td>1</td>
+                                                <td>₱50.00</td>
                                                 <td>
-                                                    <input type="number" class="form-control form-control-sm" value="1" min="1" style="width: 60px;">
-                                                </td>
-                                                <td>$10.00</td>
-                                                <td>$10.00</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-danger">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
+                                                    <button class="btn btn-sm btn-danger">×</button>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -131,27 +122,19 @@ session_start();
                                 </div>
 
                                 <!-- Cart Summary -->
-                                <div class="cart-summary">
+                                <div class="cart-summary border-top pt-3">
                                     <div class="row mb-2">
-                                        <div class="col">Subtotal:</div>
-                                        <div class="col text-end">$10.00</div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col">Tax (10%):</div>
-                                        <div class="col text-end">$1.00</div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col"><strong>Total:</strong></div>
-                                        <div class="col text-end"><strong>$11.00</strong></div>
+                                        <div class="col">Total:</div>
+                                        <div class="col text-end"><h4 class="mb-0">₱50.00</h4></div>
                                     </div>
 
-                                    <!-- Payment Buttons -->
-                                    <div class="d-grid gap-2">
-                                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#paymentModal">
-                                            <i class="bi bi-cash"></i> Process Payment
+                                    <!-- Payment Button -->
+                                    <div class="d-grid gap-2 mt-3">
+                                        <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                                            Pay Now
                                         </button>
-                                        <button class="btn btn-danger">
-                                            <i class="bi bi-x-circle"></i> Cancel Sale
+                                        <button class="btn btn-outline-secondary">
+                                            Clear Cart
                                         </button>
                                     </div>
                                 </div>
@@ -168,34 +151,30 @@ session_start();
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Process Payment</h5>
+                    <h5 class="modal-title">Cash Payment</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Total Amount</label>
-                        <input type="text" class="form-control" value="$11.00" readonly>
+                    <div class="text-center mb-4">
+                        <h3>Total Amount</h3>
+                        <h2 class="text-success">₱50.00</h2>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Payment Method</label>
-                        <select class="form-select">
-                            <option>Cash</option>
-                            <option>Card</option>
-                            <option>Other</option>
-                        </select>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Cash Received</label>
+                        <input type="number" class="form-control form-control-lg" step="1" min="50">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Amount Received</label>
-                        <input type="number" class="form-control" step="0.01">
-                    </div>
-                    <div class="mb-3">
+
+                    <div class="mb-4">
                         <label class="form-label">Change</label>
-                        <input type="text" class="form-control" readonly>
+                        <input type="text" class="form-control form-control-lg" readonly value="₱0.00">
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Complete Payment</button>
+
+                    <div class="d-grid">
+                        <button class="btn btn-success btn-lg">
+                            Complete Sale
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

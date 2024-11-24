@@ -103,7 +103,7 @@ session_start();
                                         <td>john@example.com</td>
                                         <td>123-456-7890</td>
                                         <td><span class="badge bg-primary">Regular</span></td>
-                                        <td>$500.00</td>
+                                        <td>₱500.00</td>
                                         <td>2023-08-15</td>
                                         <td>
                                             <button class="btn btn-sm btn-info" title="View History">

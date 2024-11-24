@@ -102,7 +102,7 @@ session_start();
                                         <td><img src="https://via.placeholder.com/50" class="img-thumbnail"></td>
                                         <td>Sample Product</td>
                                         <td>Food</td>
-                                        <td>$10.00</td>
+                                        <td>₱10.00</td>
                                         <td>50</td>
                                         <td><span class="badge bg-success">Active</span></td>
                                         <td>

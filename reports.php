@@ -84,7 +84,7 @@ session_start();
                         <div class="card text-white bg-primary">
                             <div class="card-body">
                                 <h5 class="card-title">Total Sales</h5>
-                                <h2>$15,350.00</h2>
+                                <h2>₱15,350.00</h2>
                                 <p class="mb-0"><i class="bi bi-arrow-up"></i> 12.5% increase</p>
                             </div>
                         </div>
@@ -102,7 +102,7 @@ session_start();
                         <div class="card text-white bg-info">
                             <div class="card-body">
                                 <h5 class="card-title">Average Order</h5>
-                                <h2>$59.96</h2>
+                                <h2>₱59.96</h2>
                                 <p class="mb-0"><i class="bi bi-arrow-down"></i> 2.1% decrease</p>
                             </div>
                         </div>
@@ -165,7 +165,7 @@ session_start();
                                         <td>#1234</td>
                                         <td>John Doe</td>
                                         <td>3 items</td>
-                                        <td>$150.00</td>
+                                        <td>₱150.00</td>
                                         <td>2023-08-15 14:30</td>
                                         <td><span class="badge bg-success">Completed</span></td>
                                     </tr>
@@ -173,7 +173,7 @@ session_start();
                                         <td>#1235</td>
                                         <td>Jane Smith</td>
                                         <td>1 item</td>
-                                        <td>$75.00</td>
+                                        <td>₱75.00</td>
                                         <td>2023-08-15 15:45</td>
                                         <td><span class="badge bg-success">Completed</span></td>
                                     </tr>
@@ -194,7 +194,7 @@ session_start();
             data: {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
-                    label: 'Sales ($)',
+                    label: 'Sales (₱)',
                     data: [2500, 1900, 3000, 2400, 2800, 3500, 2200],
                     borderColor: 'rgb(75, 192, 192)',
                     tension: 0.1

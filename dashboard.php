@@ -77,7 +77,7 @@ session_start();
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="card-title">Today's Sales</h6>
-                                        <h2 class="card-text">$1,250.00</h2>
+                                        <h2 class="card-text">₱1,250.00</h2>
                                     </div>
                                     <i class="bi bi-currency-dollar fs-1"></i>
                                 </div>
@@ -186,7 +186,7 @@ session_start();
                                                 <td>INV-2023-001</td>
                                                 <td>John Doe</td>
                                                 <td>3 items</td>
-                                                <td>$150.00</td>
+                                                <td>₱150.00</td>
                                                 <td>2023-06-20</td>
                                                 <td><span class="badge bg-success">Completed</span></td>
                                             </tr>
@@ -194,7 +194,7 @@ session_start();
                                                 <td>INV-2023-002</td>
                                                 <td>Jane Smith</td>
                                                 <td>1 item</td>
-                                                <td>$75.00</td>
+                                                <td>₱75.00</td>
                                                 <td>2023-06-20</td>
                                                 <td><span class="badge bg-success">Completed</span></td>
                                             </tr>
@@ -202,7 +202,7 @@ session_start();
                                                 <td>INV-2023-003</td>
                                                 <td>Bob Johnson</td>
                                                 <td>5 items</td>
-                                                <td>$320.00</td>
+                                                <td>₱320.00</td>
                                                 <td>2023-06-20</td>
                                                 <td><span class="badge bg-warning">Pending</span></td>
                                             </tr>
@@ -226,7 +226,7 @@ session_start();
             data: {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
-                    label: 'Sales ($)',
+                    label: 'Sales (₱)',
                     data: [1200, 1900, 1500, 2100, 1800, 2500, 1250],
                     borderColor: 'rgb(75, 192, 192)',
                     tension: 0.1

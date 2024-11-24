@@ -7,7 +7,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS System - Settings</title>
+    <title>Settings - Bakery POS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -61,142 +61,172 @@ session_start();
 
                 <!-- Settings Sections -->
                 <div class="row">
-                    <div class="col-md-3">
-                        <div class="list-group mb-4">
-                            <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="list">
-                                General Settings
-                            </a>
-                            <a href="#company" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                Company Information
-                            </a>
-                            <a href="#invoice" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                Invoice Settings
-                            </a>
-                            <a href="#tax" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                Tax Settings
-                            </a>
-                            <a href="#payment" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                Payment Methods
-                            </a>
-                            <a href="#users" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                User Management
-                            </a>
-                            <a href="#backup" class="list-group-item list-group-item-action" data-bs-toggle="list">
-                                Backup & Restore
-                            </a>
+                    <div class="col-md-6 mb-4">
+                        <!-- Business Information -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Business Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Business Name</label>
+                                        <input type="text" class="form-control" value="My Bakery">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <textarea class="form-control" rows="2">123 Sample Street, Barangay Sample, City</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Contact Number</label>
+                                        <input type="text" class="form-control" value="+63 912 345 6789">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">TIN Number</label>
+                                        <input type="text" class="form-control" placeholder="XXX-XXX-XXX-XXX">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Region</label>
+                                        <select class="form-select">
+                                            <option>Metro Manila</option>
+                                            <option>Calabarzon</option>
+                                            <option>Central Luzon</option>
+                                            <option>Western Visayas</option>
+                                            <option>Central Visayas</option>
+                                            <option>Davao Region</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-md-9">
-                        <div class="tab-content">
-                            <!-- General Settings -->
-                            <div class="tab-pane fade show active" id="general">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">General Settings</h5>
-                                        <form>
-                                            <div class="mb-3">
-                                                <label class="form-label">Store Name</label>
-                                                <input type="text" class="form-control" value="My POS Store">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Currency</label>
-                                                <select class="form-select">
-                                                    <option>USD ($)</option>
-                                                    <option>EUR (€)</option>
-                                                    <option>GBP (£)</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Time Zone</label>
-                                                <select class="form-select">
-                                                    <option>UTC-8 (Pacific Time)</option>
-                                                    <option>UTC-5 (Eastern Time)</option>
-                                                    <option>UTC+0 (GMT)</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Date Format</label>
-                                                <select class="form-select">
-                                                    <option>MM/DD/YYYY</option>
-                                                    <option>DD/MM/YYYY</option>
-                                                    <option>YYYY-MM-DD</option>
-                                                </select>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                                        </form>
-                                    </div>
-                                </div>
+                    <div class="col-md-6 mb-4">
+                        <!-- Receipt Settings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Receipt Settings</h5>
                             </div>
-
-                            <!-- Company Information -->
-                            <div class="tab-pane fade" id="company">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Company Information</h5>
-                                        <form>
-                                            <div class="mb-3">
-                                                <label class="form-label">Company Name</label>
-                                                <input type="text" class="form-control">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Address</label>
-                                                <textarea class="form-control" rows="3"></textarea>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Phone</label>
-                                                    <input type="tel" class="form-control">
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label class="form-label">Email</label>
-                                                    <input type="email" class="form-control">
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Tax ID/VAT Number</label>
-                                                <input type="text" class="form-control">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Company Logo</label>
-                                                <input type="file" class="form-control">
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                                        </form>
+                            <div class="card-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Receipt Type</label>
+                                        <select class="form-select">
+                                            <option>BIR Approved Receipt</option>
+                                            <option>Temporary Receipt</option>
+                                            <option>Acknowledgment Receipt</option>
+                                        </select>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Invoice Settings -->
-                            <div class="tab-pane fade" id="invoice">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Invoice Settings</h5>
-                                        <form>
-                                            <div class="mb-3">
-                                                <label class="form-label">Invoice Prefix</label>
-                                                <input type="text" class="form-control" value="INV-">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Next Invoice Number</label>
-                                                <input type="number" class="form-control" value="1001">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Invoice Footer Text</label>
-                                                <textarea class="form-control" rows="3"></textarea>
-                                            </div>
-                                            <div class="mb-3 form-check">
-                                                <input type="checkbox" class="form-check-input" id="showLogo">
-                                                <label class="form-check-label" for="showLogo">Show Company Logo</label>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                                        </form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Receipt Header</label>
+                                        <textarea class="form-control" rows="2">Welcome to My Bakery!</textarea>
                                     </div>
-                                </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Receipt Footer</label>
+                                        <textarea class="form-control" rows="2">Salamat po! Balik po kayo!</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">VAT Rate (%)</label>
+                                        <input type="number" class="form-control" value="12">
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Show VAT Breakdown</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Print Change Amount</label>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-
-                            <!-- Other settings tabs would go here -->
                         </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <!-- Cash Register Settings -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Cash Register Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Starting Cash Amount</label>
+                                        <input type="number" class="form-control" value="1000">
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Require Cash Count at End of Day</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Print Cash Count Report</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Track Cash Drawer Opens</label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <!-- System Preferences -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">System Preferences</h5>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Language</label>
+                                        <select class="form-select">
+                                            <option>English</option>
+                                            <option>Filipino</option>
+                                            <option>Cebuano</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Time Zone</label>
+                                        <select class="form-select">
+                                            <option>Asia/Manila (GMT+8)</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Enable Low Stock Alerts</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Auto-generate End of Day Report</label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Settings
+                        </button>
                     </div>
                 </div>
             </main>
