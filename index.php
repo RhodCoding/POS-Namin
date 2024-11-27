@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+// If user is already logged in, redirect to appropriate page
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: admin/dashboard.php'); // Redirect admin to admin dashboard
+    } else {
+        header('Location: employee/pos.php'); // Redirect employees to POS system
+    }
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +27,15 @@
                 <div class="card shadow-lg">
                     <div class="card-body p-5">
                         <h1 class="text-center mb-4">POS Login</h1>
-                        <form action="dashboard.php" method="POST">
+                        <?php if (isset($_SESSION['login_error'])): ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?php 
+                                echo htmlspecialchars($_SESSION['login_error']); 
+                                unset($_SESSION['login_error']);
+                                ?>
+                            </div>
+                        <?php endif; ?>
+                        <form action="auth.php" method="POST">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="username" name="username" required>
