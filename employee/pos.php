@@ -12,7 +12,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cashier Dashboard - Bakery POS</title>
+    <title>Point of Sale - Bakery POS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -46,6 +46,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
             background: #2c3e50;
             color: white;
             padding: 1rem;
+            margin-top: 56px;
         }
         .logout-btn {
             color: white;
@@ -57,16 +58,18 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
     </style>
 </head>
 <body>
+    <!-- Navbar -->
+    <?php include 'components/navbar.php'; ?>
+
     <!-- Cashier Header -->
     <div class="cashier-header">
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col">
-                    <h4 class="mb-0">Bakery POS System</h4>
+                    <h4 class="mb-0">Point of Sale</h4>
                 </div>
                 <div class="col-auto">
-                    <span class="me-3">Cashier: <strong><?php echo htmlspecialchars($_SESSION['user_name']); ?></strong></span>
-                    <a href="../logout.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                    <span class="me-3">Cashier: <strong><?php echo htmlspecialchars($_SESSION['username'] ?? 'Employee'); ?></strong></span>
                 </div>
             </div>
         </div>
@@ -127,6 +130,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
                                 <h5>Subtotal:</h5>
                                 <h5>₱<span id="subtotal">0.00</span></h5>
                             </div>
+
                             <div class="d-flex justify-content-between mb-3">
                                 <h4>Total:</h4>
                                 <h4>₱<span id="total">0.00</span></h4>
