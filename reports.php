@@ -140,56 +140,6 @@ session_start();
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Hourly Sales Chart
-        const hourlyCtx = document.getElementById('hourlySalesChart').getContext('2d');
-        new Chart(hourlyCtx, {
-            type: 'bar',
-            data: {
-                labels: ['6AM', '7AM', '8AM', '9AM', '10AM', '11AM', '12PM', '1PM', '2PM', '3PM', '4PM', '5PM'],
-                datasets: [{
-                    label: 'Sales (₱)',
-                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgb(75, 192, 192)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // Top Items Chart
-        const itemsCtx = document.getElementById('topItemsChart').getContext('2d');
-        new Chart(itemsCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Bread', 'Cakes', 'Pastries'],
-                datasets: [{
-                    data: [0, 0, 0],
-                    backgroundColor: [
-                        'rgb(255, 99, 132)',
-                        'rgb(54, 162, 235)',
-                        'rgb(255, 205, 86)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true
-            }
-        });
-
-        // Date change handler
-        document.getElementById('reportDate').addEventListener('change', function() {
-            // TODO: Load sales data for selected date
-            console.log('Selected date:', this.value);
-        });
-    </script>
+    <script src="assets/js/reports.js"></script>
 </body>
 </html>

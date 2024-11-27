@@ -1,13 +1,12 @@
 <?php
 session_start();
-// TODO: Add authentication check
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS System - Products</title>
+    <title>Products - Bakery POS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -51,82 +50,93 @@ session_start();
             <!-- Main content -->
             <main class="col-md-10 ms-sm-auto px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1>Products Management</h1>
+                    <h1>Products</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                            <i class="bi bi-plus"></i> Add New Product
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal">
+                            <i class="bi bi-plus"></i> Add Product
                         </button>
                     </div>
                 </div>
 
                 <!-- Search and Filter -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control" id="productSearch" 
-                                   placeholder="Search products..." autocomplete="off">
+                            <input type="text" class="form-control" id="searchProduct" placeholder="Search products...">
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <select class="form-select" id="categoryFilter">
-                            <option value="all">All Categories</option>
-                            <option value="bread">Bread</option>
-                            <option value="cakes">Cakes</option>
-                            <option value="pastries">Pastries</option>
-                            <option value="beverages">Beverages</option>
-                        </select>
+                    <div class="col-md-6 text-end">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" id="gridView">
+                                <i class="bi bi-grid"></i> Grid
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="listView">
+                                <i class="bi bi-list"></i> List
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Products Table -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover" id="productsTable">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Image</th>
-                                        <th>Name</th>
-                                        <th>Category</th>
-                                        <th>Price</th>
-                                        <th>Stock</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
+                <!-- Grid View -->
+                <div id="productsGrid" class="row row-cols-1 row-cols-md-3 g-4">
+                    <!-- Products will be loaded here via JavaScript -->
+                </div>
 
-                                <tbody>
-    <tr data-product-id="1">
-        <td>1</td>
-        <td><img src="assets/images/pandesal.jpg" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" data-image-path="assets/images/pandesal.jpg"></td>
-        <td data-name>Pandesal</td>
-        <td data-category>bread</td>
-        <td data-price>₱5.00</td>
-        <td data-stock>100</td>
-        <td><span class="badge bg-success" data-status>Active</span></td>
-        <td>
-            <button class="btn btn-sm btn-primary edit-product"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger delete-product"><i class="bi bi-trash"></i></button>
-        </td>
-    </tr>
-    <tr data-product-id="2">
-        <td>2</td>
-        <td><img src="assets/images/chocolate-cake.jpg" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" data-image-path="assets/images/chocolate-cake.jpg"></td>
-        <td data-name>Chocolate Cake</td>
-        <td data-category>cakes</td>
-        <td data-price>₱450.00</td>
-        <td data-stock>5</td>
-        <td><span class="badge bg-success" data-status>Active</span></td>
-        <td>
-            <button class="btn btn-sm btn-primary edit-product"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger delete-product"><i class="bi bi-trash"></i></button>
-        </td>
-    </tr>
-</tbody>
+                <!-- List View -->
+                <div id="productsTable" class="table-responsive d-none">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Products will be loaded here via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
 
-                            </table>
+                <!-- Add/Edit Product Modal -->
+                <div class="modal fade" id="productModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="productModalLabel">Add Product</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="productForm">
+                                    <input type="hidden" id="productId">
+                                    <div class="mb-3">
+                                        <label for="productImage" class="form-label">Product Image</label>
+                                        <input type="file" class="form-control" id="productImage" accept="image/*">
+                                        <div id="imagePreview" class="mt-2 text-center">
+                                            <img src="" alt="Product Preview" style="max-width: 200px; max-height: 200px; display: none;" class="img-thumbnail">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="productName" class="form-label">Product Name</label>
+                                        <input type="text" class="form-control" id="productName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="productPrice" class="form-label">Price</label>
+                                        <input type="number" class="form-control" id="productPrice" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="productStock" class="form-label">Stock</label>
+                                        <input type="number" class="form-control" id="productStock" min="0" required>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="saveProduct">Save</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -134,118 +144,7 @@ session_start();
         </div>
     </div>
 
-    <!-- Add Product Modal -->
-    <div class="modal fade" id="addProductModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Product</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addProductForm">
-                        <div class="mb-3">
-                            <label class="form-label">Product Name</label>
-                            <input type="text" class="form-control" name="name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Category</label>
-                            <select class="form-select" name="category" required>
-                                <option value="">Select Category</option>
-                                <option value="bread">Bread</option>
-                                <option value="cakes">Cakes</option>
-                                <option value="pastries">Pastries</option>
-                                <option value="beverages">Beverages</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Price (₱)</label>
-                            <input type="number" class="form-control" name="price" step="0.01" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Initial Stock</label>
-                            <input type="number" class="form-control" name="stock" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Product Image</label>
-                            <input type="file" class="form-control" name="image" accept="image/*">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" name="description" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" form="addProductForm">Save Product</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/products.js"></script>
-
-    <!-- Edit Product Modal -->
-<div class="modal fade" id="editProductModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Product</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editProductForm">
-                    <input type="hidden" name="productId" id="editProductId">
-                    <div class="mb-3">
-                        <label class="form-label">Product Name</label>
-                        <input type="text" class="form-control" name="name" id="editProductName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" name="category" id="editProductCategory" required>
-                            <option value="">Select Category</option>
-                            <option value="bread">Bread</option>
-                            <option value="cakes">Cakes</option>
-                            <option value="pastries">Pastries</option>
-                            <option value="beverages">Beverages</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Price (₱)</label>
-                        <input type="number" class="form-control" name="price" id="editProductPrice" step="0.01" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Stock</label>
-                        <input type="number" class="form-control" name="stock" id="editProductStock" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Product Image</label>
-                        <input type="file" class="form-control" name="image" id="editProductImage" accept="image/*">
-                        <div class="mt-2">
-                            <img id="editProductImagePreview" src="" alt="Product Image" class="img-thumbnail" style="max-width: 100px; display: none;">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" name="description" id="editProductDescription" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status" id="editProductStatus" required>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="ProductsManager.products.saveEdit()">Save Changes</button>
-            </div>
-        </div>
-    </div>
-</div>
 </body>
 </html>
