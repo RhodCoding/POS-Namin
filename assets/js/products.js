@@ -22,25 +22,16 @@ const ProductManager = {
 
     // Setup event listeners
     setupEventListeners() {
-        // Toggle view buttons
-        document.getElementById('gridView').addEventListener('click', () => this.toggleView('grid'));
-        document.getElementById('listView').addEventListener('click', () => this.toggleView('list'));
-
-        // Search functionality
-        document.getElementById('searchProduct').addEventListener('input', (e) => {
-            this.searchProducts(e.target.value);
-        });
-
         // Image preview
         document.getElementById('productImage').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                this.selectedImage = file;
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const preview = document.getElementById('imagePreview');
+                    const preview = document.querySelector('#imagePreview img');
                     preview.src = e.target.result;
                     preview.style.display = 'block';
+                    this.selectedImage = e.target.result; // Store the base64 image
                 };
                 reader.readAsDataURL(file);
             }
@@ -50,6 +41,20 @@ const ProductManager = {
         document.getElementById('saveProduct').addEventListener('click', () => {
             this.saveProduct();
         });
+
+        // Reset form when modal is hidden
+        document.getElementById('productModal').addEventListener('hidden.bs.modal', () => {
+            this.resetForm();
+        });
+
+        // Search functionality
+        document.getElementById('searchProduct').addEventListener('input', (e) => {
+            this.searchProducts(e.target.value);
+        });
+
+        // Toggle view buttons
+        document.getElementById('gridView').addEventListener('click', () => this.toggleView('grid'));
+        document.getElementById('listView').addEventListener('click', () => this.toggleView('list'));
     },
 
     // Load products
@@ -175,6 +180,20 @@ const ProductManager = {
         }
     },
 
+    // Reset form
+    resetForm() {
+        document.getElementById('productId').value = '';
+        document.getElementById('productName').value = '';
+        document.getElementById('productPrice').value = '';
+        document.getElementById('productStock').value = '';
+        document.getElementById('productImage').value = '';
+        const preview = document.querySelector('#imagePreview img');
+        preview.src = '';
+        preview.style.display = 'none';
+        this.selectedImage = null;
+        document.getElementById('productModalLabel').textContent = 'Add Product';
+    },
+
     // Save product
     saveProduct() {
         const id = document.getElementById('productId').value;
@@ -191,7 +210,13 @@ const ProductManager = {
             // Update existing product
             const index = this.sampleProducts.findIndex(p => p.id === parseInt(id));
             if (index !== -1) {
-                this.sampleProducts[index] = { ...this.sampleProducts[index], name, price, stock };
+                this.sampleProducts[index] = {
+                    ...this.sampleProducts[index],
+                    name,
+                    price,
+                    stock,
+                    image: this.selectedImage || this.sampleProducts[index].image
+                };
             }
         } else {
             // Add new product
@@ -201,19 +226,31 @@ const ProductManager = {
                 name,
                 price,
                 stock,
-                image: this.selectedImage ? URL.createObjectURL(this.selectedImage) : this.defaultProductImage
+                image: this.selectedImage || this.defaultProductImage
             });
         }
 
-        // Refresh display
-        this.loadProducts();
-        
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
-        modal.hide();
-        document.getElementById('productForm').reset();
-        document.getElementById('imagePreview').style.display = 'none';
-        this.selectedImage = null;
+        // Refresh display and close modal
+        this.displayProducts(this.sampleProducts);
+        bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+        this.showToast(id ? 'Product updated successfully!' : 'Product added successfully!');
+    },
+
+    // Show toast notification
+    showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3';
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
     },
 
     // Delete product

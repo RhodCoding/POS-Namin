@@ -26,7 +26,7 @@ session_start();
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white" href="pos.php">
-                                <i class="bi bi-cart"></i> New Sale
+                                <i class="bi bi-cart"></i> Point of Sale
                             </a>
                         </li>
                         <li class="nav-item">
@@ -36,7 +36,7 @@ session_start();
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white" href="reports.php">
-                                <i class="bi bi-graph-up"></i> Sales Report
+                                <i class="bi bi-graph-up"></i> Reports
                             </a>
                         </li>
                         <li class="nav-item">
@@ -66,7 +66,7 @@ session_start();
 
                 <!-- Quick Stats -->
                 <div class="row">
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card bg-primary text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -74,33 +74,49 @@ session_start();
                                         <h6 class="card-title">Today's Sales</h6>
                                         <h3 class="mb-0">₱0.00</h3>
                                     </div>
-                                    <i class="bi bi-cart-check h1 mb-0"></i>
+                                    <i class="bi bi-cash-stack h1 mb-0"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card bg-success text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="card-title">Total Products</h6>
-                                        <h3 class="mb-0">0</h3>
+                                        <h6 class="card-title">Pieces Sold Today</h6>
+                                        <h3 class="mb-0">0 pcs</h3>
+                                        <small class="text-white-50">Bread & Pastries</small>
                                     </div>
-                                    <i class="bi bi-box-seam h1 mb-0"></i>
+                                    <i class="bi bi-basket h1 mb-0"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card bg-info text-white h-100">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="card-title">Total Sales</h6>
-                                        <h3 class="mb-0">₱0.00</h3>
+                                        <h6 class="card-title">Best Seller Today</h6>
+                                        <h3 class="mb-0">Pandesal</h3>
+                                        <small class="text-white-50">150 pcs sold</small>
                                     </div>
-                                    <i class="bi bi-graph-up h1 mb-0"></i>
+                                    <i class="bi bi-star h1 mb-0"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                        <div class="card bg-warning text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title">Low Stock Alert</h6>
+                                        <h3 class="mb-0">2</h3>
+                                        <small class="text-white-50">Items to restock</small>
+                                    </div>
+                                    <i class="bi bi-exclamation-triangle h1 mb-0"></i>
                                 </div>
                             </div>
                         </div>
@@ -111,8 +127,9 @@ session_start();
                 <div class="row mt-4">
                     <div class="col-md-8 mb-4">
                         <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Sales Overview</h5>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Today's Sales by Hour</h5>
+                                <small class="text-muted">Most sales during breakfast time</small>
                             </div>
                             <div class="card-body">
                                 <canvas id="salesChart"></canvas>
@@ -121,12 +138,55 @@ session_start();
                     </div>
                     <div class="col-md-4 mb-4">
                         <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Top Products</h5>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Top Selling Items</h5>
+                                <small class="text-muted">By pieces sold</small>
                             </div>
                             <div class="card-body">
                                 <canvas id="productsChart"></canvas>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Sales -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Sales</h5>
+                        <small class="text-muted">Last 5 transactions</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Items</th>
+                                        <th>Pieces</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>08:30 AM</td>
+                                        <td>Pandesal, Cheese Bread</td>
+                                        <td>25 pcs</td>
+                                        <td>₱125.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>08:15 AM</td>
+                                        <td>Ensaymada, Spanish Bread</td>
+                                        <td>10 pcs</td>
+                                        <td>₱200.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>07:45 AM</td>
+                                        <td>Pandesal</td>
+                                        <td>50 pcs</td>
+                                        <td>₱250.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -141,17 +201,27 @@ session_start();
         new Chart(salesCtx, {
             type: 'line',
             data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                labels: ['6AM', '7AM', '8AM', '9AM', '10AM', '11AM', '12PM', '1PM', '2PM', '3PM', '4PM', '5PM'],
                 datasets: [{
-                    label: 'Daily Sales',
-                    data: [0, 0, 0, 0, 0, 0, 0],
+                    label: 'Sales (₱)',
+                    data: [300, 850, 1200, 1000, 800, 750, 950, 800, 600, 500, 500, 500],
                     borderColor: 'rgb(75, 192, 192)',
                     tension: 0.1
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₱' + value;
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -160,19 +230,26 @@ session_start();
         new Chart(productsCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Bread', 'Cakes', 'Pastries'],
+                labels: ['Pandesal', 'Ensaymada', 'Cheese Bread', 'Spanish Bread', 'Chocolate Cake'],
                 datasets: [{
-                    data: [0, 0, 0],
+                    data: [150, 25, 30, 20, 10],
                     backgroundColor: [
                         'rgb(255, 99, 132)',
                         'rgb(54, 162, 235)',
-                        'rgb(255, 205, 86)'
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)',
+                        'rgb(153, 102, 255)'
                     ]
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
             }
         });
     </script>

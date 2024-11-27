@@ -26,7 +26,7 @@ session_start();
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white" href="pos.php">
-                                <i class="bi bi-cart"></i> New Sale
+                                <i class="bi bi-cart"></i> Point of Sale
                             </a>
                         </li>
                         <li class="nav-item">
@@ -36,7 +36,7 @@ session_start();
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active text-white" href="reports.php">
-                                <i class="bi bi-graph-up"></i> Sales Report
+                                <i class="bi bi-graph-up"></i> Reports
                             </a>
                         </li>
                         <li class="nav-item">
@@ -73,27 +73,30 @@ session_start();
                     <div class="col-md-4">
                         <div class="card text-white bg-success h-100">
                             <div class="card-body">
-                                <h5 class="card-title">Items Sold Today</h5>
-                                <h2 class="mb-0">0 items</h2>
+                                <h5 class="card-title">Total Pieces Sold</h5>
+                                <h2 class="mb-0">0 pcs</h2>
+                                <small class="text-white-50">Bread & Pastries</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="card text-white bg-info h-100">
                             <div class="card-body">
-                                <h5 class="card-title">Average Sale</h5>
-                                <h2 class="mb-0">₱0.00</h2>
+                                <h5 class="card-title">Best Seller Today</h5>
+                                <h2 class="mb-0">Pandesal</h2>
+                                <small class="text-white-50">0 pcs sold</small>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Sales Breakdown -->
+                <!-- Charts -->
                 <div class="row mb-4">
                     <div class="col-md-8">
                         <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Hourly Sales</h5>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Sales by Hour</h5>
+                                <small class="text-muted">Most sales happen during breakfast time</small>
                             </div>
                             <div class="card-body">
                                 <canvas id="hourlySalesChart" height="300"></canvas>
@@ -102,8 +105,9 @@ session_start();
                     </div>
                     <div class="col-md-4">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0">Top Selling Items</h5>
+                                <small class="text-muted">By quantity sold</small>
                             </div>
                             <div class="card-body">
                                 <canvas id="topItemsChart" height="300"></canvas>
@@ -112,10 +116,11 @@ session_start();
                     </div>
                 </div>
 
-                <!-- Today's Sales List -->
+                <!-- Sales List -->
                 <div class="card mb-4">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Today's Sales</h5>
+                        <small class="text-muted">All transactions are cash payments</small>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -131,6 +136,13 @@ session_start();
                                 <tbody>
                                     <!-- Sales will be populated here -->
                                 </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td colspan="2"><strong>Daily Total</strong></td>
+                                        <td><strong>₱0.00</strong></td>
+                                        <td>Cash</td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>

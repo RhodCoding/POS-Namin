@@ -125,7 +125,10 @@ session_start();
                                     </div>
                                     <div class="mb-3">
                                         <label for="productPrice" class="form-label">Price</label>
-                                        <input type="number" class="form-control" id="productPrice" step="0.01" min="0" required>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₱</span>
+                                            <input type="number" class="form-control" id="productPrice" step="0.01" min="0" required>
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="productStock" class="form-label">Stock</label>
