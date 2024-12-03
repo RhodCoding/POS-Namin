@@ -76,25 +76,30 @@ class ProductApi extends ApiHandler {
     }
 
     private function getAllProducts() {
-        $filters = [
-            'category' => $_GET['category'] ?? null,
-            'search' => $_GET['search'] ?? null,
-            'stock_status' => $_GET['stock_status'] ?? null,
-            'status' => $_GET['status'] ?? null,
-            'sort' => $_GET['sort'] ?? 'name',
-            'order' => $_GET['order'] ?? 'asc',
-            'limit' => (int)($_GET['limit'] ?? 50),
-            'offset' => (int)($_GET['offset'] ?? 0)
-        ];
+        try {
+            $filters = [
+                'category' => $_GET['category'] ?? null,
+                'search' => $_GET['search'] ?? null,
+                'stock_status' => $_GET['stock_status'] ?? null,
+                'status' => $_GET['status'] ?? null,
+                'sort' => $_GET['sort'] ?? 'name',
+                'order' => $_GET['order'] ?? 'asc',
+                'limit' => (int)($_GET['limit'] ?? 50),
+                'offset' => (int)($_GET['offset'] ?? 0)
+            ];
 
-        $products = $this->productModel->findAll($filters);
-        $total = $this->productModel->countAll($filters);
+            $products = $this->productModel->findAll($filters);
+            $total = $this->productModel->countAll($filters);
 
-        $this->sendResponse([
-            'products' => $products,
-            'total' => $total,
-            'filters' => $filters
-        ]);
+            $this->sendResponse([
+                'success' => true,
+                'products' => $products,
+                'total' => $total,
+                'filters' => $filters
+            ]);
+        } catch (Exception $e) {
+            $this->sendError('Failed to fetch products: ' . $e->getMessage());
+        }
     }
 
     private function getProduct($id) {

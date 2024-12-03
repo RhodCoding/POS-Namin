@@ -38,7 +38,7 @@ class Dashboard {
     public function getLowStockItems() {
         $query = "SELECT COUNT(*) as total 
                  FROM products 
-                 WHERE stock_quantity <= 10";
+                 WHERE stock <= alert_threshold";
         $result = $this->db->query($query);
         $row = $result->fetch_assoc();
         return $row['total'];
@@ -148,10 +148,10 @@ class Dashboard {
         $query = "SELECT 
                     c.name,
                     COUNT(DISTINCT p.id) as product_count,
-                    COALESCE(SUM(p.stock_quantity), 0) as total_stock
+                    COALESCE(SUM(p.stock), 0) as total_stock
                  FROM categories c
                  LEFT JOIN products p ON c.id = p.category_id
-                 GROUP BY c.id
+                 GROUP BY c.id, c.name
                  ORDER BY product_count DESC";
         $result = $this->db->query($query);
         $categories = array();

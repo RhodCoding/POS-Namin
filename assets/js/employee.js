@@ -1,8 +1,15 @@
 // Employee Management
 document.addEventListener('DOMContentLoaded', function() {
-    // Add Employee Form
     const addForm = document.getElementById('addEmployeeForm');
     const editForm = document.getElementById('editEmployeeForm');
+    const addModal = document.getElementById('addEmployeeModal');
+    
+    // Reset form when modal is opened
+    if (addModal) {
+        addModal.addEventListener('show.bs.modal', function () {
+            addForm.reset();
+        });
+    }
     
     if (addForm) {
         addForm.addEventListener('submit', async function(e) {
@@ -25,33 +32,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 const result = await response.json();
-
+                
                 if (result.success) {
-                    addForm.reset();
-                    const addModal = document.getElementById('addEmployeeModal');
-                    bootstrap.Modal.getInstance(addModal).hide();
                     showToast('Employee added successfully', 'success');
-                    // Refresh the page after a short delay
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
+                    addForm.reset();
+                    const modal = bootstrap.Modal.getInstance(addModal);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    if (result.errors) {
-                        Object.keys(result.errors).forEach(field => {
-                            const input = document.getElementById('employee' + field.charAt(0).toUpperCase() + field.slice(1));
-                            const errorDiv = document.getElementById(field + 'Error');
-                            if (input && errorDiv) {
-                                input.classList.add('is-invalid');
-                                errorDiv.textContent = result.errors[field];
-                            }
-                        });
+                    if (result.errors && result.errors.username === 'Username already exists') {
+                        showToast('Username already exists', 'error');
                     } else {
                         showToast(result.message || 'Failed to add employee', 'error');
                     }
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('Failed to add employee', 'error');
+                showToast('An error occurred. Please try again.', 'error');
             }
         });
     }
@@ -63,9 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(editForm);
             const data = {};
             formData.forEach((value, key) => {
-                if (key !== 'password' || value !== '') {
-                    data[key] = value;
-                }
+                data[key] = value;
             });
 
             try {
@@ -79,21 +76,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 const result = await response.json();
-
+                
                 if (result.success) {
-                    editForm.reset();
-                    const editModal = document.getElementById('editEmployeeModal');
-                    bootstrap.Modal.getInstance(editModal).hide();
                     showToast('Employee updated successfully', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editEmployeeModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     showToast(result.message || 'Failed to update employee', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('Failed to update employee', 'error');
+                showToast('An error occurred. Please try again.', 'error');
             }
         });
     }
@@ -154,28 +150,24 @@ window.deleteEmployee = async function(id) {
 
 // Function to show toast notifications
 function showToast(message, type = 'success') {
-    const toastContainer = document.querySelector('.toast-container');
-    const toastElement = document.createElement('div');
-    toastElement.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
-    toastElement.setAttribute('role', 'alert');
-    toastElement.setAttribute('aria-live', 'assertive');
-    toastElement.setAttribute('aria-atomic', 'true');
-
-    toastElement.innerHTML = `
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
         <div class="d-flex">
-            <div class="toast-body">
-                ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
     `;
-
-    toastContainer.appendChild(toastElement);
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-
-    // Remove the toast element after it's hidden
-    toastElement.addEventListener('hidden.bs.toast', function () {
-        toastElement.remove();
+    
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', function () {
+        document.body.removeChild(toast);
     });
 }

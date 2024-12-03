@@ -5,76 +5,129 @@ abstract class Model {
     protected $fillable = [];
 
     public function __construct() {
-        $this->db = Database::getInstance()->getConnection();
+        try {
+            $this->db = Database::getInstance()->getConnection();
+            if (!$this->db) {
+                throw new Exception("Database connection failed");
+            }
+        } catch (Exception $e) {
+            error_log("Model initialization error: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function findById($id) {
-        $id = $this->db->real_escape_string($id);
-        $query = "SELECT * FROM {$this->table} WHERE id = {$id} LIMIT 1";
-        $result = $this->db->query($query);
-        return $result ? $result->fetch_assoc() : null;
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = ? LIMIT 1");
+            $stmt->bind_param('i', $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result ? $result->fetch_assoc() : null;
+        } catch (Exception $e) {
+            error_log("Error in findById: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function findAll($conditions = [], $orderBy = '') {
-        $query = "SELECT * FROM {$this->table}";
-        
-        if (!empty($conditions)) {
-            $whereClause = [];
-            foreach ($conditions as $key => $value) {
-                $key = $this->db->real_escape_string($key);
-                $value = $this->db->real_escape_string($value);
-                $whereClause[] = "{$key} = '{$value}'";
+        try {
+            $query = "SELECT * FROM {$this->table}";
+            $params = [];
+            $types = '';
+            
+            if (!empty($conditions)) {
+                $whereClause = [];
+                foreach ($conditions as $key => $value) {
+                    $whereClause[] = "{$key} = ?";
+                    $params[] = $value;
+                    $types .= is_int($value) ? 'i' : 's';
+                }
+                $query .= " WHERE " . implode(' AND ', $whereClause);
             }
-            $query .= " WHERE " . implode(' AND ', $whereClause);
-        }
 
-        if (!empty($orderBy)) {
-            $query .= " ORDER BY " . $this->db->real_escape_string($orderBy);
-        }
+            if (!empty($orderBy)) {
+                $query .= " ORDER BY " . $this->db->real_escape_string($orderBy);
+            }
 
-        $result = $this->db->query($query);
-        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+            $stmt = $this->db->prepare($query);
+            if (!empty($params)) {
+                $stmt->bind_param($types, ...$params);
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+        } catch (Exception $e) {
+            error_log("Error in findAll: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function create($data) {
-        $fields = [];
-        $values = [];
-
-        foreach ($this->fillable as $field) {
-            if (isset($data[$field])) {
-                $fields[] = $field;
-                $values[] = "'" . $this->db->real_escape_string($data[$field]) . "'";
+        try {
+            $fields = array_intersect_key($data, array_flip($this->fillable));
+            if (empty($fields)) {
+                throw new Exception("No valid fields to insert");
             }
-        }
 
-        $query = "INSERT INTO {$this->table} (" . implode(', ', $fields) . ") 
-                 VALUES (" . implode(', ', $values) . ")";
-        
-        if ($this->db->query($query)) {
-            return $this->db->insert_id;
+            $columns = implode(', ', array_keys($fields));
+            $values = implode(', ', array_fill(0, count($fields), '?'));
+            $query = "INSERT INTO {$this->table} ({$columns}) VALUES ({$values})";
+            
+            $stmt = $this->db->prepare($query);
+            $types = str_repeat('s', count($fields));
+            $stmt->bind_param($types, ...array_values($fields));
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to create record: " . $stmt->error);
+            }
+            
+            return $this->findById($stmt->insert_id);
+        } catch (Exception $e) {
+            error_log("Error in create: " . $e->getMessage());
+            throw $e;
         }
-        return false;
     }
 
     public function update($id, $data) {
-        $updates = [];
-        foreach ($this->fillable as $field) {
-            if (isset($data[$field])) {
-                $value = $this->db->real_escape_string($data[$field]);
-                $updates[] = "{$field} = '{$value}'";
+        try {
+            $fields = array_intersect_key($data, array_flip($this->fillable));
+            if (empty($fields)) {
+                throw new Exception("No valid fields to update");
             }
-        }
 
-        $id = $this->db->real_escape_string($id);
-        $query = "UPDATE {$this->table} SET " . implode(', ', $updates) . 
-                " WHERE id = {$id}";
-        
-        return $this->db->query($query);
+            $setClause = implode(' = ?, ', array_keys($fields)) . ' = ?';
+            $query = "UPDATE {$this->table} SET {$setClause} WHERE id = ?";
+            
+            $stmt = $this->db->prepare($query);
+            $types = str_repeat('s', count($fields)) . 'i';
+            $values = array_values($fields);
+            $values[] = $id;
+            $stmt->bind_param($types, ...$values);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to update record: " . $stmt->error);
+            }
+            
+            return $this->findById($id);
+        } catch (Exception $e) {
+            error_log("Error in update: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function delete($id) {
-        $id = $this->db->real_escape_string($id);
-        $query = "DELETE FROM {$this->table} WHERE id = {$id}";
-        return $this->db->query($query);
+        try {
+            $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE id = ?");
+            $stmt->bind_param('i', $id);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to delete record: " . $stmt->error);
+            }
+            
+            return $stmt->affected_rows > 0;
+        } catch (Exception $e) {
+            error_log("Error in delete: " . $e->getMessage());
+            throw $e;
+        }
     }
 }

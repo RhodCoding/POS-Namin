@@ -19,35 +19,18 @@ class ApiHandler {
         }
     }
 
-    protected function sendResponse($data, $statusCode = 200) {
-        http_response_code($statusCode);
+    protected function sendResponse($data, $success = true) {
         header('Content-Type: application/json');
-        
-        // Add rate limit headers
-        header('X-RateLimit-Remaining: ' . $this->rateLimiter->getRemainingRequests());
-        header('X-RateLimit-Reset: ' . $this->rateLimiter->getResetTime());
-        
-        // Log successful response
-        $this->logger->logApiRequest($data);
-        
-        echo json_encode($data);
-        exit();
+        echo json_encode([
+            'success' => $success,
+            ...$data
+        ]);
+        exit;
     }
 
-    protected function sendError($message, $statusCode = 400) {
-        // Log error response
-        $this->logger->logApiRequest(null, $message);
-        
-        $this->sendResponse(['error' => $message], $statusCode);
-    }
-
-    protected function getRequestData() {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->sendError('Invalid JSON data');
-        }
-        // Sanitize the entire request data array
-        return Sanitizer::array($data);
+    protected function sendError($message, $code = 400) {
+        http_response_code($code);
+        $this->sendResponse(['message' => $message], false);
     }
 
     protected function requireAuth() {
@@ -59,46 +42,83 @@ class ApiHandler {
     }
 
     protected function requireAdmin() {
-        session_start();
-        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-            $this->sendError('Forbidden', 403);
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+            $this->sendError('Unauthorized access', 403);
         }
     }
 
-    protected function validateRequired($data, $fields) {
-        foreach ($fields as $field) {
-            if (!isset($data[$field]) || empty($data[$field])) {
-                $this->sendError("Missing required field: {$field}");
+    protected function getRequestData() {
+        $method = $_SERVER['REQUEST_METHOD'];
+        
+        if ($method === 'GET') {
+            return $_GET;
+        }
+        
+        $contentType = $_SERVER["CONTENT_TYPE"] ?? '';
+        $data = [];
+        
+        if (strpos($contentType, 'application/json') !== false) {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json, true) ?? [];
+        } else if ($method === 'POST') {
+            $data = $_POST;
+        } else {
+            parse_str(file_get_contents('php://input'), $data);
+        }
+        
+        return $data;
+    }
+
+    protected function validateRequiredFields($data, $requiredFields) {
+        $missing = [];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field]) || (is_string($data[$field]) && trim($data[$field]) === '')) {
+                $missing[] = $field;
             }
         }
+        
+        if (!empty($missing)) {
+            $this->sendError('Missing required fields: ' . implode(', ', $missing));
+        }
+        
+        return true;
     }
 
-    protected function sanitizeInput($value, $type = 'string') {
-        switch ($type) {
-            case 'email':
-                return Sanitizer::email($value);
-            case 'number':
-                return Sanitizer::number($value);
-            case 'integer':
-                return Sanitizer::integer($value);
-            case 'url':
-                return Sanitizer::url($value);
-            case 'filename':
-                return Sanitizer::filename($value);
-            case 'sql':
-                return Sanitizer::sqlIdentifier($value);
-            case 'array':
-                return Sanitizer::array($value);
+    protected function sanitizeInput($data) {
+        if (is_array($data)) {
+            return array_map([$this, 'sanitizeInput'], $data);
+        }
+        return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+    }
+
+    protected function handleFileUpload($file, $allowedTypes, $maxSize = 5242880) {
+        if (!isset($file['error']) || is_array($file['error'])) {
+            throw new Exception('Invalid file parameters');
+        }
+
+        switch ($file['error']) {
+            case UPLOAD_ERR_OK:
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                throw new Exception('No file uploaded');
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                throw new Exception('File size exceeds limit');
             default:
-                return Sanitizer::string($value);
+                throw new Exception('Unknown file upload error');
         }
-    }
 
-    protected function sanitizeQueryParams() {
-        $params = [];
-        foreach ($_GET as $key => $value) {
-            $params[$key] = $this->sanitizeInput($value);
+        if ($file['size'] > $maxSize) {
+            throw new Exception('File size exceeds limit');
         }
-        return $params;
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
+
+        if (!in_array($mimeType, $allowedTypes)) {
+            throw new Exception('Invalid file type');
+        }
+
+        return true;
     }
 }

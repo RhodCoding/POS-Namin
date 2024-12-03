@@ -30,17 +30,18 @@ DROP TABLE IF EXISTS products;
 -- Products table
 CREATE TABLE IF NOT EXISTS products (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    category VARCHAR(100) NOT NULL,
+    category_id INT NOT NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL DEFAULT 0,
     alert_threshold INT NOT NULL DEFAULT 10,
     image VARCHAR(255),
-    status ENUM('active', 'inactive', 'discontinued') NOT NULL DEFAULT 'active',
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_category (category),
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    INDEX idx_category (category_id),
     INDEX idx_status (status),
     INDEX idx_stock (stock)
 );
@@ -49,8 +50,9 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS orders (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
+    customer_name VARCHAR(100),
     total_amount DECIMAL(10,2) NOT NULL,
-    payment_method ENUM('cash', 'card') NOT NULL,
+    payment_method ENUM('cash', 'card') NOT NULL DEFAULT 'cash',
     status ENUM('pending', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -63,9 +65,10 @@ CREATE TABLE IF NOT EXISTS order_items (
     order_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
-    unit_price DECIMAL(10,2) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
     subtotal DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
@@ -125,25 +128,20 @@ CREATE TABLE IF NOT EXISTS discounts (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Insert default admin user (password: admin123)
-INSERT INTO users (username, password, name, role, status) 
-VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 'admin', 'active')
-ON DUPLICATE KEY UPDATE id=id;
+-- Insert default admin user
+INSERT INTO users (username, password, name, role) VALUES 
+('admin', '$2y$10$FKggRMz0J2LYEtXeVL3H9.iQSHtKhEgxU3Ss9MnM8LgYQqkWkXKGO', 'Administrator', 'admin');
 
--- Insert some default categories
+-- Sample Categories
 INSERT INTO categories (name, description) VALUES 
 ('Breads', 'Fresh baked breads'),
 ('Cakes', 'Delicious cakes for all occasions'),
-('Pastries', 'Sweet and savory pastries'),
-('Beverages', 'Hot and cold drinks')
-ON DUPLICATE KEY UPDATE id=id;
+('Pastries', 'Various pastries and snacks'),
+('Beverages', 'Hot and cold drinks');
 
 -- Insert some sample products
-INSERT INTO products (category, name, description, price, stock, alert_threshold, status) VALUES 
-('Breads', 'Pandesal', 'Filipino bread rolls', 5.00, 100, 50, 'active'),
-('Breads', 'Ensaymada', 'Sweet bread topped with butter and cheese', 20.00, 50, 20, 'active'),
-('Cakes', 'Chocolate Cake', 'Rich chocolate cake with frosting', 450.00, 5, 3, 'active'),
-('Pastries', 'Cheese Bread', 'Soft bread filled with cheese', 15.00, 30, 15, 'active'),
-('Cakes', 'Ube Cake', 'Purple yam flavored cake', 500.00, 3, 3, 'active'),
-('Breads', 'Spanish Bread', 'Sweet filled bread roll', 10.00, 40, 20, 'active')
-ON DUPLICATE KEY UPDATE id=id;
+INSERT INTO products (category_id, name, description, price, stock, alert_threshold, status) VALUES 
+(1, 'Pandesal', 'Filipino bread rolls', 5.00, 100, 50, 'active'),
+(1, 'Ensaymada', 'Sweet bread topped with butter and cheese', 20.00, 50, 20, 'active'),
+(2, 'Chocolate Cake', 'Rich chocolate cake with frosting', 450.00, 5, 3, 'active'),
+(3, 'Cheese Bread', 'Soft bread filled with cheese', 15.00, 30, 15, 'active');

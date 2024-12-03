@@ -5,34 +5,41 @@ require_once __DIR__ . '/Database.php';
 class Product extends Model {
     protected $table = 'products';
     protected $fillable = [
-        'category',
+        'category_id',
         'name',
         'description',
         'price',
-        'stock_quantity',
+        'stock',
         'alert_threshold',
         'image',
         'status'
     ];
 
     public function findAll($conditions = [], $orderBy = '') {
-        $query = "SELECT * FROM {$this->table}";
-        
-        if (!empty($conditions)) {
-            $query .= " WHERE ";
-            $conditions_arr = [];
-            foreach ($conditions as $key => $value) {
-                $conditions_arr[] = "{$key} = '" . $this->db->real_escape_string($value) . "'";
+        try {
+            $query = "SELECT p.*, c.name as category 
+                     FROM {$this->table} p 
+                     LEFT JOIN categories c ON p.category_id = c.id";
+            
+            if (!empty($conditions)) {
+                $query .= " WHERE ";
+                $conditions_arr = [];
+                foreach ($conditions as $key => $value) {
+                    $conditions_arr[] = "p.{$key} = '" . $this->db->real_escape_string($value) . "'";
+                }
+                $query .= implode(" AND ", $conditions_arr);
             }
-            $query .= implode(" AND ", $conditions_arr);
+            
+            if ($orderBy) {
+                $query .= " ORDER BY {$orderBy}";
+            }
+            
+            $result = $this->db->query($query);
+            return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+        } catch (Exception $e) {
+            error_log("Error in Product findAll: " . $e->getMessage());
+            throw $e;
         }
-        
-        if ($orderBy) {
-            $query .= " ORDER BY {$orderBy}";
-        }
-        
-        $result = $this->db->query($query);
-        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
 
     public function getAll() {
@@ -48,7 +55,7 @@ class Product extends Model {
         
         // Build where clause based on filters
         if (!empty($filters['category'])) {
-            $where[] = 'category = ?';
+            $where[] = 'category_id = ?';
             $params[] = $filters['category'];
             $types .= 's';
         }
@@ -98,7 +105,7 @@ class Product extends Model {
     }
 
     public function getByCategory($category) {
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE category = ? AND status = 'active'");
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE category_id = ? AND status = 'active'");
         $stmt->bind_param('s', $category);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -156,7 +163,7 @@ class Product extends Model {
     public function updateStockQuantity($productId, $quantity) {
         try {
             // Get current stock
-            $query = "SELECT stock_quantity FROM products WHERE id = ?";
+            $query = "SELECT stock FROM products WHERE id = ?";
             $stmt = $this->db->prepare($query);
             $stmt->bind_param("i", $productId);
             $stmt->execute();
@@ -168,13 +175,13 @@ class Product extends Model {
             }
 
             // Calculate new stock
-            $newStock = $product['stock_quantity'] - $quantity;
+            $newStock = $product['stock'] - $quantity;
             if ($newStock < 0) {
                 throw new Exception("Insufficient stock");
             }
 
             // Update stock
-            $query = "UPDATE products SET stock_quantity = ? WHERE id = ?";
+            $query = "UPDATE products SET stock = ? WHERE id = ?";
             $stmt = $this->db->prepare($query);
             $stmt->bind_param("ii", $newStock, $productId);
             
@@ -209,7 +216,7 @@ class Product extends Model {
         $allowedColumns = [
             'id',
             'name',
-            'category',
+            'category_id',
             'price',
             'stock',
             'status',

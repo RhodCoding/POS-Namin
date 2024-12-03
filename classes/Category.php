@@ -6,6 +6,12 @@ class Category extends Model {
     protected $table = 'categories';
     protected $fillable = ['name', 'description'];
 
+    public function getAll() {
+        $query = "SELECT * FROM {$this->table} ORDER BY name ASC";
+        $result = $this->db->query($query);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
     public function getProductCount() {
         $query = "SELECT c.id, c.name, COUNT(p.id) as product_count 
                  FROM {$this->table} c 
