@@ -15,12 +15,29 @@ const POSManager = {
 
     // Cart data
     cart: [],
+    discountCode: null,
+    discountAmount: 0,
 
     // Initialize POS system
     init() {
         this.loadProducts();
         this.setupEventListeners();
         this.updateCartSummary();
+        this.loadSettings();
+    },
+
+    // Load system settings
+    async loadSettings() {
+        try {
+            const settings = await Api.getSettings();
+            this.settings = settings;
+            // Update UI with store settings
+            if (settings.store_name) {
+                document.querySelector('#storeName').textContent = settings.store_name.value;
+            }
+        } catch (error) {
+            console.error('Failed to load settings:', error);
+        }
     },
 
     // Load products into the grid
@@ -105,35 +122,63 @@ const POSManager = {
     },
 
     // Update cart totals
-    updateCartSummary() {
+    async updateCartSummary() {
         const subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const total = subtotal; // Add tax calculation here if needed
+        
+        // If there's a discount code, validate it
+        if (this.discountCode) {
+            try {
+                const discountResult = await Api.validateDiscount(this.discountCode, subtotal, this.cart);
+                this.discountAmount = discountResult.amount;
+            } catch (error) {
+                console.error('Failed to validate discount:', error);
+                this.discountAmount = 0;
+                this.discountCode = null;
+            }
+        }
 
-        document.querySelector('#subtotal').textContent = subtotal.toFixed(2);
-        document.querySelector('#total').textContent = total.toFixed(2);
-
-        // Update payment modal
-        document.querySelector('#totalAmount').value = `₱${total.toFixed(2)}`;
-
-        // Enable/disable checkout button
-        document.querySelector('#checkoutBtn').disabled = this.cart.length === 0;
+        const total = subtotal - this.discountAmount;
+        
+        document.querySelector('#subtotal').textContent = `₱${subtotal.toFixed(2)}`;
+        document.querySelector('#discount').textContent = `₱${this.discountAmount.toFixed(2)}`;
+        document.querySelector('#total').textContent = `₱${total.toFixed(2)}`;
     },
 
     // Process payment
-    processPayment() {
-        const total = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const cashReceived = parseFloat(document.querySelector('#cashReceived').value);
+    async processPayment() {
+        const subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const total = subtotal - this.discountAmount;
 
-        if (isNaN(cashReceived) || cashReceived < total) {
-            this.showToast('Invalid cash amount!', 'danger');
+        // Get payment amount from input
+        const amountPaid = parseFloat(document.querySelector('#paymentAmount').value);
+        
+        if (isNaN(amountPaid) || amountPaid < total) {
+            this.showToast('Invalid payment amount', 'error');
             return;
         }
 
-        const change = cashReceived - total;
-        document.querySelector('#changeAmount').value = `₱${change.toFixed(2)}`;
+        const change = amountPaid - total;
 
-        // Enable complete payment button
-        document.querySelector('#completePaymentBtn').disabled = false;
+        try {
+            const orderData = {
+                items: this.cart,
+                subtotal: subtotal,
+                discount_code: this.discountCode,
+                discount_amount: this.discountAmount,
+                total: total,
+                amount_paid: amountPaid,
+                change: change
+            };
+
+            await Api.createOrder(orderData);
+            
+            document.querySelector('#change').textContent = `₱${change.toFixed(2)}`;
+            this.showToast('Payment processed successfully');
+            this.completeSale();
+        } catch (error) {
+            console.error('Payment processing failed:', error);
+            this.showToast('Failed to process payment', 'error');
+        }
     },
 
     // Complete the sale
@@ -229,6 +274,28 @@ const POSManager = {
         document.querySelector('#completePaymentBtn').addEventListener('click', () => {
             this.completeSale();
         });
+
+        // Discount code input
+        const discountInput = document.querySelector('#discountCode');
+        if (discountInput) {
+            discountInput.addEventListener('change', async (e) => {
+                const code = e.target.value.trim();
+                if (code) {
+                    try {
+                        const subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                        const discountResult = await Api.validateDiscount(code, subtotal, this.cart);
+                        this.discountCode = code;
+                        this.discountAmount = discountResult.amount;
+                        this.showToast(`Discount applied: ₱${this.discountAmount.toFixed(2)}`);
+                    } catch (error) {
+                        this.discountCode = null;
+                        this.discountAmount = 0;
+                        this.showToast('Invalid discount code', 'error');
+                    }
+                    this.updateCartSummary();
+                }
+            });
+        }
     },
 
     // Show toast notification

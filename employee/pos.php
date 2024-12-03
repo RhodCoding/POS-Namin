@@ -48,13 +48,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
             padding: 1rem;
             margin-top: 56px;
         }
-        .logout-btn {
-            color: white;
-            text-decoration: none;
-        }
-        .logout-btn:hover {
-            color: #e0e0e0;
-        }
     </style>
 </head>
 <body>
@@ -63,88 +56,104 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
 
     <!-- Cashier Header -->
     <div class="cashier-header">
-        <div class="container-fluid">
+        <div class="container">
             <div class="row align-items-center">
                 <div class="col">
-                    <h4 class="mb-0">Point of Sale</h4>
+                    <h1 id="storeName" class="h3 mb-0">Bakery POS</h1>
                 </div>
                 <div class="col-auto">
-                    <span class="me-3">Cashier: <strong><?php echo htmlspecialchars($_SESSION['username'] ?? 'Employee'); ?></strong></span>
+                    <span class="h5 mb-0">Cashier: <?php echo isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : 'Unknown'; ?></span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="container-fluid mt-3">
+    <div class="container-fluid mt-4">
         <div class="row">
-            <!-- Left side - Products -->
+            <!-- Products Section -->
             <div class="col-md-8">
-                <!-- Search Products -->
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control" id="searchProducts" placeholder="Search products...">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Products</h5>
+                        <div class="input-group" style="max-width: 300px;">
+                            <input type="text" class="form-control" placeholder="Search products..." id="searchProducts">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                <!-- Products Grid -->
-                <div class="card">
                     <div class="card-body">
-                        <div class="product-grid" id="productsGrid">
-                            <!-- Products will be loaded here via JavaScript -->
+                        <div class="product-grid">
+                            <?php
+                            require_once '../classes/Product.php';
+                            $productModel = new Product();
+                            $products = $productModel->getAll();
+                            
+                            foreach ($products as $product) {
+                                $imagePath = "../assets/images/products/pandesal.png"; // Using pandesal.png for all products
+                                ?>
+                                <div class="product-item" onclick="addToCart(<?php echo htmlspecialchars(json_encode($product)); ?>)">
+                                    <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-image">
+                                    <div class="p-2">
+                                        <h6 class="mb-1"><?php echo htmlspecialchars($product['name']); ?></h6>
+                                        <p class="mb-1">₱<?php echo number_format($product['price'], 2); ?></p>
+                                        <small class="text-muted">Stock: <?php echo isset($product['stock_quantity']) ? $product['stock_quantity'] : 0; ?></small>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right side - Cart -->
+            <!-- Cart -->
             <div class="col-md-4">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">Current Sale</h5>
+                        <h5 class="card-title mb-0">Current Order</h5>
                     </div>
                     <div class="card-body p-0">
-                        <!-- Cart Items -->
                         <div class="cart-container">
                             <table class="table table-hover mb-0">
-                                <thead>
+                                <thead class="table-light">
                                     <tr>
                                         <th>Item</th>
-                                        <th>Qty</th>
-                                        <th>Price</th>
-                                        <th>Total</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Price</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="cartItems">
-                                    <!-- Cart items will be loaded here via JavaScript -->
+                                    <!-- Cart items will be inserted here -->
                                 </tbody>
                             </table>
                         </div>
-
+                        
                         <!-- Cart Summary -->
                         <div class="p-3 border-top">
+                            <!-- Discount Code -->
+                            <div class="mb-3">
+                                <label for="discountCode" class="form-label">Discount Code</label>
+                                <input type="text" class="form-control" id="discountCode" placeholder="Enter discount code">
+                            </div>
+
+                            <!-- Totals -->
                             <div class="d-flex justify-content-between mb-2">
-                                <h5>Subtotal:</h5>
-                                <h5>₱<span id="subtotal">0.00</span></h5>
+                                <span>Subtotal:</span>
+                                <span id="subtotal">₱0.00</span>
                             </div>
-
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Discount:</span>
+                                <span id="discount">₱0.00</span>
+                            </div>
                             <div class="d-flex justify-content-between mb-3">
-                                <h4>Total:</h4>
-                                <h4>₱<span id="total">0.00</span></h4>
+                                <span class="fw-bold">Total:</span>
+                                <span id="total" class="fw-bold">₱0.00</span>
                             </div>
 
-                            <!-- Payment Actions -->
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-success btn-lg" id="checkoutBtn">
-                                    <i class="bi bi-cash"></i> Process Payment
-                                </button>
-                                <button class="btn btn-outline-danger" id="clearCartBtn">
-                                    <i class="bi bi-trash"></i> Clear Cart
-                                </button>
-                            </div>
+                            <button id="checkoutBtn" class="btn btn-success w-100" disabled>
+                                <i class="bi bi-cart-check"></i> Checkout
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -162,27 +171,42 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'employee') {
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Total Amount</label>
-                        <input type="text" class="form-control form-control-lg" id="totalAmount" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Cash Received</label>
-                        <input type="number" class="form-control form-control-lg" id="cashReceived" min="0" step="0.01">
+                        <label for="paymentAmount" class="form-label">Amount Paid</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₱</span>
+                            <input type="number" class="form-control" id="paymentAmount" step="0.01">
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Change</label>
-                        <input type="text" class="form-control form-control-lg" id="changeAmount" readonly>
+                        <div class="input-group">
+                            <span class="input-group-text">₱</span>
+                            <input type="text" class="form-control" id="change" readonly>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" id="completePaymentBtn">Complete Sale</button>
+                    <button type="button" class="btn btn-primary" id="processPaymentBtn">Process Payment</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/employee-pos.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/pos.js"></script>
 </body>
 </html>

@@ -1,44 +1,44 @@
 // POS System Management for Employees
 const POSManager = {
-    // Sample products data (will be replaced with database data later)
-    sampleProducts: [
-        { id: 1, name: 'Pandesal', price: 5.00, stock: 100, image: '../assets/images/products/pandesal.png' },
-        { id: 2, name: 'Ensaymada', price: 20.00, stock: 50, image: '../assets/images/products/pandesal.png' },
-        { id: 3, name: 'Chocolate Cake', price: 450.00, stock: 5, image: '../assets/images/products/pandesal.png' },
-        { id: 4, name: 'Cheese Bread', price: 15.00, stock: 30, image: '../assets/images/products/pandesal.png' },
-        { id: 5, name: 'Ube Cake', price: 500.00, stock: 3, image: '../assets/images/products/pandesal.png' },
-        { id: 6, name: 'Spanish Bread', price: 10.00, stock: 40, image: '../assets/images/products/pandesal.png' }
-    ],
-
-    // Default product image
-    defaultProductImage: '../assets/images/products/default.png',
-
     // Cart data
     cart: [],
+    products: [],
 
     // Initialize POS system
-    init() {
-        this.loadProducts();
+    async init() {
+        await this.loadProducts();
         this.setupEventListeners();
         this.updateCartSummary();
     },
 
-    // Load products into the grid
-    loadProducts() {
+    // Load products from API
+    async loadProducts() {
+        try {
+            const response = await Api.getProducts();
+            this.products = response.products;
+            this.displayProducts(this.products);
+        } catch (error) {
+            console.error('Failed to load products:', error);
+            this.showToast('Failed to load products. Please try again.', 'danger');
+        }
+    },
+
+    // Display products in the grid
+    displayProducts(products) {
         const grid = document.querySelector('#productsGrid');
         grid.innerHTML = '';
 
-        this.sampleProducts.forEach(product => {
+        products.forEach(product => {
             const productHtml = `
                 <div class="card product-item" data-id="${product.id}">
-                    <img src="${product.image}" 
+                    <img src="${product.image_url || '../assets/images/products/default.png'}" 
                          class="product-image card-img-top" 
                          alt="${product.name}"
-                         onerror="this.src='${this.defaultProductImage}'">
+                         onerror="this.src='../assets/images/products/default.png'">
                     <div class="card-body text-center">
                         <h6 class="card-title">${product.name}</h6>
-                        <p class="card-text">₱${product.price.toFixed(2)}</p>
-                        <small class="text-muted">Stock: ${product.stock}</small>
+                        <p class="card-text">₱${parseFloat(product.price).toFixed(2)}</p>
+                        <small class="text-muted">Stock: ${product.stock_quantity}</small>
                     </div>
                 </div>
             `;
@@ -48,12 +48,12 @@ const POSManager = {
 
     // Add item to cart
     addToCart(productId) {
-        const product = this.sampleProducts.find(p => p.id === productId);
+        const product = this.products.find(p => p.id === productId);
         if (!product) return;
 
         const cartItem = this.cart.find(item => item.id === productId);
         if (cartItem) {
-            if (cartItem.quantity < product.stock) {
+            if (cartItem.quantity < product.stock_quantity) {
                 cartItem.quantity++;
                 this.updateCartDisplay();
                 this.showToast(`Added another ${product.name} to cart`);
@@ -64,7 +64,7 @@ const POSManager = {
             this.cart.push({
                 id: product.id,
                 name: product.name,
-                price: product.price,
+                price: parseFloat(product.price),
                 quantity: 1
             });
             this.updateCartDisplay();
@@ -115,6 +115,12 @@ const POSManager = {
         if (totalAmountInput) {
             totalAmountInput.value = `₱${subtotal.toFixed(2)}`;
         }
+
+        // Enable/disable checkout button
+        const checkoutBtn = document.querySelector('#checkoutBtn');
+        if (checkoutBtn) {
+            checkoutBtn.disabled = this.cart.length === 0;
+        }
     },
 
     // Process payment
@@ -133,23 +139,42 @@ const POSManager = {
     },
 
     // Complete sale
-    completeSale() {
+    async completeSale() {
         const { total, cash, change } = this.processPayment();
         
         if (cash >= total) {
-            // Here we'll add database integration later
-            this.showToast('Sale completed successfully!', 'success');
-            this.clearCart();
-            
-            // Close the modal
-            const modal = bootstrap.Modal.getInstance(document.querySelector('#paymentModal'));
-            if (modal) {
-                modal.hide();
-            }
+            try {
+                // Create order through API
+                const orderData = {
+                    items: this.cart.map(item => ({
+                        product_id: item.id,
+                        quantity: item.quantity
+                    })),
+                    payment_method: 'cash',
+                    cash_received: cash,
+                    change_amount: change
+                };
 
-            // Reset payment form
-            document.querySelector('#cashReceived').value = '';
-            document.querySelector('#changeAmount').value = '';
+                const response = await Api.createOrder(orderData);
+                
+                this.showToast('Sale completed successfully!', 'success');
+                this.clearCart();
+                await this.loadProducts(); // Reload products to update stock
+                
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.querySelector('#paymentModal'));
+                if (modal) {
+                    modal.hide();
+                }
+
+                // Reset payment form
+                document.querySelector('#cashReceived').value = '';
+                document.querySelector('#changeAmount').value = '';
+
+            } catch (error) {
+                console.error('Failed to complete sale:', error);
+                this.showToast('Failed to complete sale. Please try again.', 'danger');
+            }
         } else {
             this.showToast('Insufficient cash amount!', 'danger');
         }
@@ -166,10 +191,10 @@ const POSManager = {
         // Product search
         document.querySelector('#searchProducts').addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
-            document.querySelectorAll('.product-item').forEach(item => {
-                const name = item.querySelector('.card-title').textContent.toLowerCase();
-                item.style.display = name.includes(searchTerm) ? '' : 'none';
-            });
+            const filteredProducts = this.products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm)
+            );
+            this.displayProducts(filteredProducts);
         });
 
         // Add to cart
@@ -188,104 +213,83 @@ const POSManager = {
 
             const productId = parseInt(button.dataset.id);
             const cartItem = this.cart.find(item => item.id === productId);
-            const product = this.sampleProducts.find(p => p.id === productId);
+            const product = this.products.find(p => p.id === productId);
 
             if (!cartItem) return;
 
             if (button.classList.contains('increase-qty')) {
-                if (cartItem.quantity < product.stock) {
+                if (cartItem.quantity < product.stock_quantity) {
                     cartItem.quantity++;
-                    this.updateCartDisplay();
                 } else {
                     this.showToast('Not enough stock!', 'danger');
                 }
             } else if (button.classList.contains('decrease-qty')) {
                 if (cartItem.quantity > 1) {
                     cartItem.quantity--;
-                    this.updateCartDisplay();
+                } else {
+                    this.cart = this.cart.filter(item => item.id !== productId);
                 }
             } else if (button.classList.contains('remove-item')) {
                 this.cart = this.cart.filter(item => item.id !== productId);
-                this.updateCartDisplay();
-                this.showToast('Item removed from cart', 'warning');
             }
+
+            this.updateCartDisplay();
         });
 
         // Clear cart
         document.querySelector('#clearCartBtn').addEventListener('click', () => {
-            if (this.cart.length === 0) {
-                this.showToast('Cart is already empty!', 'warning');
-                return;
-            }
-            if (confirm('Are you sure you want to clear the cart?')) {
-                this.clearCart();
-                this.showToast('Cart cleared', 'warning');
+            if (this.cart.length > 0) {
+                if (confirm('Are you sure you want to clear the cart?')) {
+                    this.clearCart();
+                }
             }
         });
 
-        // Checkout process
+        // Process payment
         document.querySelector('#checkoutBtn').addEventListener('click', () => {
             if (this.cart.length === 0) {
                 this.showToast('Cart is empty!', 'warning');
                 return;
             }
-            // Reset payment form
-            document.querySelector('#cashReceived').value = '';
-            document.querySelector('#changeAmount').value = '';
-            // Update total in modal
-            this.updateCartSummary();
-            // Show modal
-            new bootstrap.Modal(document.querySelector('#paymentModal')).show();
+            const modal = new bootstrap.Modal(document.querySelector('#paymentModal'));
+            modal.show();
         });
 
-        // Process payment calculation
+        // Calculate change
         document.querySelector('#cashReceived').addEventListener('input', () => {
             this.processPayment();
         });
 
-        // Complete sale
+        // Complete payment
         document.querySelector('#completePaymentBtn').addEventListener('click', () => {
             this.completeSale();
         });
 
-        // Handle payment modal close
-        document.querySelector('#paymentModal').addEventListener('hidden.bs.modal', () => {
-            document.querySelector('#cashReceived').value = '';
-            document.querySelector('#changeAmount').value = '';
-        });
+        // Refresh products periodically (every 5 minutes)
+        setInterval(() => this.loadProducts(), 5 * 60 * 1000);
     },
 
     // Show toast notification
     showToast(message, type = 'success') {
-        let toastContainer = document.querySelector('.toast-container');
+        const toastEl = document.createElement('div');
+        toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
         
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-            document.body.appendChild(toastContainer);
-        }
-
-        const toastHtml = `
-            <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         `;
-
-        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-        const toast = new bootstrap.Toast(toastContainer.lastElementChild, {
-            autohide: true,
-            delay: 3000
-        });
+        
+        document.body.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl);
         toast.show();
-
-        // Remove toast after it's hidden
-        toastContainer.lastElementChild.addEventListener('hidden.bs.toast', function () {
-            this.remove();
+        
+        toastEl.addEventListener('hidden.bs.toast', () => {
+            toastEl.remove();
         });
     }
 };

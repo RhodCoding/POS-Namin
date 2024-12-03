@@ -1,7 +1,8 @@
 <?php
 session_start();
+
 // Check if user is logged in and is admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../index.php');
     exit();
 }
@@ -19,104 +20,127 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 <body>
     <div class="container-fluid">
         <div class="row">
-            <?php include 'components/navbar.php'; ?>
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-md-block sidebar">
+                <?php include 'components/sidebar.php'; ?>
+            </nav>
 
             <!-- Main content -->
             <main class="col-md-10 ms-sm-auto px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1>Daily Sales Report</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <button type="button" class="btn btn-outline-secondary me-2" onclick="window.print()">
-                            <i class="bi bi-printer"></i> Print Report
+                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3">
+                    <h2>Reports</h2>
+                    <div>
+                        <button class="btn btn-success" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
                         </button>
-                        <input type="date" class="form-control" id="reportDate" value="<?php echo date('Y-m-d'); ?>">
                     </div>
                 </div>
 
-                <!-- Today's Summary -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card text-white bg-primary h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">Today's Total Sales</h5>
-                                <h2 class="mb-0">₱0.00</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card text-white bg-success h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Pieces Sold</h5>
-                                <h2 class="mb-0">0 pcs</h2>
-                                <small class="text-white-50">Bread & Pastries</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card text-white bg-info h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">Best Seller Today</h5>
-                                <h2 class="mb-0">Pandesal</h2>
-                                <small class="text-white-50">0 pcs sold</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts -->
-                <div class="row mb-4">
-                    <div class="col-md-8">
+                <!-- Reports Content -->
+                <div class="row">
+                    <div class="col-md-12">
                         <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Sales by Hour</h5>
-                                <small class="text-muted">Most sales happen during breakfast time</small>
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Sales Reports</h5>
                             </div>
                             <div class="card-body">
-                                <canvas id="hourlySalesChart" height="300"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Top Selling Items</h5>
-                                <small class="text-muted">By quantity sold</small>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="topItemsChart" height="300"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                <!-- Today's Summary -->
+                                <div class="row mb-4">
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-primary h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Today's Total Sales</h5>
+                                                <h2 class="mb-0">₱0.00</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-success h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Total Pieces Sold</h5>
+                                                <h2 class="mb-0">0 pcs</h2>
+                                                <small class="text-white-50">Bread & Pastries</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-info h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Best Seller Today</h5>
+                                                <h2 class="mb-0">Pandesal</h2>
+                                                <small class="text-white-50">0 pcs sold</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                <!-- Sales List -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Today's Sales</h5>
-                        <small class="text-muted">All transactions are cash payments</small>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Time</th>
-                                        <th>Items</th>
-                                        <th>Total</th>
-                                        <th>Payment</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Sales will be populated here -->
-                                </tbody>
-                                <tfoot class="table-light">
-                                    <tr>
-                                        <td colspan="2"><strong>Daily Total</strong></td>
-                                        <td><strong>₱0.00</strong></td>
-                                        <td>Cash</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                <!-- Charts -->
+                                <div class="row mb-4">
+                                    <div class="col-md-8">
+                                        <div class="card">
+                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">Sales by Hour</h5>
+                                                <small class="text-muted">Most sales happen during breakfast time</small>
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="hourlySalesChart" height="300"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                <h5 class="card-title mb-0">Top Selling Items</h5>
+                                                <small class="text-muted">By quantity sold</small>
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="topItemsChart" height="300"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sales List -->
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">Today's Sales</h5>
+                                        <small class="text-muted">All transactions are cash payments</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Time</th>
+                                                        <th>Items</th>
+                                                        <th>Total</th>
+                                                        <th>Payment</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Sales will be populated here -->
+                                                </tbody>
+                                                <tfoot class="table-light">
+                                                    <tr>
+                                                        <td colspan="2"><strong>Daily Total</strong></td>
+                                                        <td><strong>₱0.00</strong></td>
+                                                        <td>Cash</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                                    <h1>Daily Sales Report</h1>
+                                    <div class="btn-toolbar mb-2 mb-md-0">
+                                        <button type="button" class="btn btn-outline-secondary me-2" onclick="window.print()">
+                                            <i class="bi bi-printer"></i> Print Report
+                                        </button>
+                                        <input type="date" class="form-control" id="reportDate" value="<?php echo date('Y-m-d'); ?>">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
