@@ -20,6 +20,20 @@ $categories = $category->getAll();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .product-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .product-image-cell {
+            width: 100px;
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -72,8 +86,8 @@ $categories = $category->getAll();
                             <?php foreach ($products as $product): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($product['id']) ?></td>
-                                    <td>
-                                        <?php if ($product['image']): ?>
+                                    <td class="product-image-cell">
+                                        <?php if ($product['image'] && file_exists("../uploads/products/" . $product['image'])): ?>
                                             <img src="../uploads/products/<?= htmlspecialchars($product['image']) ?>" 
                                                  alt="<?= htmlspecialchars($product['name']) ?>" 
                                                  class="product-thumbnail">
@@ -153,6 +167,7 @@ $categories = $category->getAll();
                         <div class="mb-3">
                             <label for="image" class="form-label">Product Image</label>
                             <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <div class="form-text">Recommended size: 80x80 pixels. Image will be automatically resized.</div>
                         </div>
                     </form>
                 </div>
