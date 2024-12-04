@@ -64,27 +64,34 @@ abstract class Model {
 
     public function create($data) {
         try {
-            $fields = array_intersect_key($data, array_flip($this->fillable));
-            if (empty($fields)) {
+            $filteredData = array_intersect_key($data, array_flip($this->fillable));
+            
+            if (empty($filteredData)) {
                 throw new Exception("No valid fields to insert");
             }
-
-            $columns = implode(', ', array_keys($fields));
-            $values = implode(', ', array_fill(0, count($fields), '?'));
+            
+            $columns = implode(', ', array_keys($filteredData));
+            $values = implode(', ', array_fill(0, count($filteredData), '?'));
+            $types = str_repeat('s', count($filteredData));
+            
             $query = "INSERT INTO {$this->table} ({$columns}) VALUES ({$values})";
-            
             $stmt = $this->db->prepare($query);
-            $types = str_repeat('s', count($fields));
-            $stmt->bind_param($types, ...array_values($fields));
             
-            if (!$stmt->execute()) {
-                throw new Exception("Failed to create record: " . $stmt->error);
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . $this->db->error);
             }
             
-            return $this->findById($stmt->insert_id);
+            $stmt->bind_param($types, ...array_values($filteredData));
+            $result = $stmt->execute();
+            
+            if ($result) {
+                return $this->db->insert_id;
+            }
+            
+            return false;
         } catch (Exception $e) {
             error_log("Error in create: " . $e->getMessage());
-            throw $e;
+            return false;
         }
     }
 

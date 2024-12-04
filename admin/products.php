@@ -11,7 +11,6 @@ $category = new Category();
 $products = $product->findAll();
 $categories = $category->getAll();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -118,17 +117,17 @@ $categories = $category->getAll();
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Product</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addProductForm" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label for="productName" class="form-label">Product Name</label>
-                            <input type="text" class="form-control" id="productName" name="name" required>
+                            <label for="name" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="productCategory" class="form-label">Category</label>
-                            <select class="form-select" id="productCategory" name="category" required>
+                            <label for="category_id" class="form-label">Category</label>
+                            <select class="form-select" id="category_id" name="category_id" required>
                                 <?php foreach ($categories as $cat): ?>
                                     <option value="<?= htmlspecialchars($cat['id']) ?>">
                                         <?= htmlspecialchars($cat['name']) ?>
@@ -137,28 +136,77 @@ $categories = $category->getAll();
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="productPrice" class="form-label">Price</label>
-                            <input type="number" class="form-control" id="productPrice" name="price" step="0.01" required>
+                            <label for="price" class="form-label">Price</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" required>
                         </div>
                         <div class="mb-3">
-                            <label for="productStock" class="form-label">Stock</label>
-                            <input type="number" class="form-control" id="productStock" name="stock" required>
+                            <label for="stock" class="form-label">Stock</label>
+                            <input type="number" class="form-control" id="stock" name="stock" required>
                         </div>
                         <div class="mb-3">
-                            <label for="productImage" class="form-label">Product Image</label>
-                            <input type="file" class="form-control" id="productImage" name="image" accept="image/*">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Product Image</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveProduct">Save Product</button>
+                    <button type="submit" class="btn btn-primary" id="saveProduct">Save Product</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/products.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Form submission
+            $('#addProductForm').on('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+
+                $.ajax({
+                    url: 'handlers/product_handler.php',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        console.log('Response:', response);
+                        try {
+                            const result = JSON.parse(response);
+                            if (result.success) {
+                                alert(result.message);
+                                location.reload();
+                            } else {
+                                alert(result.message || 'Failed to add product');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                            alert('Error processing server response');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ajax error:', status, error);
+                        console.log('Response text:', xhr.responseText);
+                        alert('An error occurred while adding the product. Check console for details.');
+                    }
+                });
+            });
+
+            // Trigger form submission when clicking save button
+            $('#saveProduct').click(function() {
+                $('#addProductForm').submit();
+            });
+        });
+    </script>
 </body>
 </html>
