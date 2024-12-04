@@ -112,7 +112,7 @@ $categories = $category->getAll();
                                             Edit
                                         </button>
                                         <button class="btn btn-sm btn-danger delete-product" 
-                                                data-product-id="<?= htmlspecialchars($product['id']) ?>">
+                                                data-id="<?= htmlspecialchars($product['id']) ?>">
                                             Delete
                                         </button>
                                     </td>
@@ -179,11 +179,66 @@ $categories = $category->getAll();
         </div>
     </div>
 
+    <!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm" enctype="multipart/form-data">
+                    <input type="hidden" id="edit_id" name="id">
+                    <div class="mb-3">
+                        <label for="edit_name" class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="edit_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_category_id" class="form-label">Category</label>
+                        <select class="form-select" id="edit_category_id" name="category_id" required>
+                            <?php foreach ($categories as $cat): ?>
+                                <option value="<?= htmlspecialchars($cat['id']) ?>">
+                                    <?= htmlspecialchars($cat['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_price" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="edit_price" name="price" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_stock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="edit_stock" name="stock" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_status" class="form-label">Status</label>
+                        <select class="form-select" id="edit_status" name="status" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_image" class="form-label">Product Image</label>
+                        <input type="file" class="form-control" id="edit_image" name="image" accept="image/*">
+                        <div class="form-text">Leave empty to keep current image. Recommended size: 80x80 pixels.</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="updateProduct">Update Product</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Form submission
+            // Form submission for adding products
             $('#addProductForm').on('submit', function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
@@ -195,7 +250,6 @@ $categories = $category->getAll();
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        console.log('Response:', response);
                         try {
                             const result = JSON.parse(response);
                             if (result.success) {
@@ -209,22 +263,79 @@ $categories = $category->getAll();
                             alert('Error processing server response');
                         }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Ajax error:', status, error);
-                        console.log('Response text:', xhr.responseText);
-                        alert('An error occurred while adding the product. Check console for details.');
+                    error: function() {
+                        alert('An error occurred while adding the product');
                     }
                 });
             });
 
-            // Trigger form submission when clicking save button
-            $('#saveProduct').click(function() {
-                $('#addProductForm').submit();
+            // Handle edit button clicks
+            $('.edit-product').click(function() {
+                const productId = $(this).data('id');
+                
+                // Fetch product details
+                $.get('handlers/get_product.php', { id: productId }, function(response) {
+                    try {
+                        const result = JSON.parse(response);
+                        if (result.success) {
+                            const product = result.data;
+                            
+                            // Fill the form with product details
+                            $('#edit_id').val(product.id);
+                            $('#edit_name').val(product.name);
+                            $('#edit_category_id').val(product.category_id);
+                            $('#edit_price').val(product.price);
+                            $('#edit_stock').val(product.stock);
+                            $('#edit_status').val(product.status);
+                            
+                            // Show the modal
+                            $('#editProductModal').modal('show');
+                        } else {
+                            alert(result.message || 'Failed to fetch product details');
+                        }
+                    } catch (e) {
+                        console.error('Error parsing response:', e);
+                        alert('Error processing server response');
+                    }
+                }).fail(function() {
+                    alert('Failed to fetch product details');
+                });
+            });
+
+            // Handle update form submission
+            $('#editProductForm').on('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+
+                $.ajax({
+                    url: 'handlers/update_product.php',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        try {
+                            const result = JSON.parse(response);
+                            if (result.success) {
+                                alert(result.message);
+                                location.reload();
+                            } else {
+                                alert(result.message || 'Failed to update product');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                            alert('Error processing server response');
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while updating the product');
+                    }
+                });
             });
 
             // Handle delete button clicks
             $('.delete-product').click(function() {
-                const productId = $(this).data('product-id');
+                const productId = $(this).data('id');
                 const productName = $(this).closest('tr').find('td:nth-child(3)').text();
                 
                 if (confirm(`Are you sure you want to delete "${productName}"?`)) {
@@ -233,7 +344,6 @@ $categories = $category->getAll();
                         type: 'POST',
                         data: { product_id: productId },
                         success: function(response) {
-                            console.log('Response:', response);
                             try {
                                 const result = JSON.parse(response);
                                 if (result.success) {
@@ -247,14 +357,23 @@ $categories = $category->getAll();
                                 alert('Error processing server response');
                             }
                         },
-                        error: function(xhr, status, error) {
-                            console.error('Ajax error:', status, error);
+                        error: function() {
                             alert('An error occurred while deleting the product');
                         }
                     });
                 }
             });
+
+            // Trigger form submissions when clicking save/update buttons
+            $('#saveProduct').click(function() {
+                $('#addProductForm').submit();
+            });
+            
+            $('#updateProduct').click(function() {
+                $('#editProductForm').submit();
+            });
         });
     </script>
+
 </body>
 </html>
