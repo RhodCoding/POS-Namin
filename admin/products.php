@@ -112,7 +112,7 @@ $categories = $category->getAll();
                                             Edit
                                         </button>
                                         <button class="btn btn-sm btn-danger delete-product" 
-                                                data-id="<?= htmlspecialchars($product['id']) ?>">
+                                                data-product-id="<?= htmlspecialchars($product['id']) ?>">
                                             Delete
                                         </button>
                                     </td>
@@ -220,6 +220,39 @@ $categories = $category->getAll();
             // Trigger form submission when clicking save button
             $('#saveProduct').click(function() {
                 $('#addProductForm').submit();
+            });
+
+            // Handle delete button clicks
+            $('.delete-product').click(function() {
+                const productId = $(this).data('product-id');
+                const productName = $(this).closest('tr').find('td:nth-child(3)').text();
+                
+                if (confirm(`Are you sure you want to delete "${productName}"?`)) {
+                    $.ajax({
+                        url: 'handlers/delete_product.php',
+                        type: 'POST',
+                        data: { product_id: productId },
+                        success: function(response) {
+                            console.log('Response:', response);
+                            try {
+                                const result = JSON.parse(response);
+                                if (result.success) {
+                                    alert(result.message);
+                                    location.reload();
+                                } else {
+                                    alert(result.message || 'Failed to delete product');
+                                }
+                            } catch (e) {
+                                console.error('Error parsing response:', e);
+                                alert('Error processing server response');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Ajax error:', status, error);
+                            alert('An error occurred while deleting the product');
+                        }
+                    });
+                }
             });
         });
     </script>
